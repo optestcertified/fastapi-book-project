@@ -15,10 +15,10 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t optest121/fastapi-app .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/fastapi-app .
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-          docker push optest121fastapi-app
+          docker push ${{ secrets.DOCKER_USERNAME }}/fastapi-app
 
       - name: Deploy to Server
         run: |
-          ssh ubuntu@54.210.218.25 'docker pull optest121/fastapi-app && docker stop fastapi-container || true && docker rm fastapi-container || true && docker run -d --name fastapi-container -p 8000:8000 optest121/fastapi-app'
+          ssh ubuntu@cd 184.72.106.67 'docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi-app && docker stop fastapi-container || true && docker rm fastapi-container || true && docker run -d --name fastapi-container -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/fastapi-app'
