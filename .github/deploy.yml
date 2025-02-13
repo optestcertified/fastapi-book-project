@@ -21,4 +21,4 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          ssh ubuntu@cd 54.174.124.129 'docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi-app && docker stop fastapi-container || true && docker rm fastapi-container || true && docker run -d --name fastapi-container -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/fastapi-app'
+          ssh ubuntu@3.89.128.131 'docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi-app && docker stop fastapi-container || true && docker rm fastapi-container || true && docker run -d --name fastapi-container -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/fastapi-app'
