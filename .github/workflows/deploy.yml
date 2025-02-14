@@ -8,27 +8,34 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      - name: Build and push Docker image
+      - name: Setup SSH Key
         run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 18.212.248.239 >> ~/.ssh/known_hosts
+
+      - name: Build and Push Docker Image
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           docker build -t ${{ secrets.DOCKER_USERNAME }}/fastapi-app .
           docker push ${{ secrets.DOCKER_USERNAME }}/fastapi-app
 
       - name: Deploy to Server
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@18.212.248.239 << EOF
+          ssh ubuntu@18.212.248.239 << EOF
           echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi-app
           sudo docker stop fastapi-container || true
           sudo docker rm fastapi-container || true
           sudo docker run -d --name fastapi-container -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/fastapi-app
           EOF
-      
+
+
+
+   
        
