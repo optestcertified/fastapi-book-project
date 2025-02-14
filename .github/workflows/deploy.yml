@@ -17,7 +17,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 18.212.248.239 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 44.204.241.189 >> ~/.ssh/known_hosts
 
       - name: Build and Push Docker Image
         run: |
