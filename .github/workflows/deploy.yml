@@ -8,26 +8,22 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 44.204.241.189 >> ~/.ssh/known_hosts
-
       - name: Build and Push Docker Image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          sudo usermod -aG docker $USER
+          newgrp docker
           docker build -t ${{ secrets.DOCKER_USERNAME }}/fastapi-app .
           docker push ${{ secrets.DOCKER_USERNAME }}/fastapi-app
 
       - name: Deploy to Server
         run: |
-          ssh ubuntu@144.204.241.189 << EOF
+          ssh -o StrictHostKeyChecking=no ubuntu@44.204.241.189 << 'EOF'
           echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/fastapi-app
           sudo docker stop fastapi-container || true
@@ -36,6 +32,3 @@ jobs:
           EOF
 
 
-
-   
-       
